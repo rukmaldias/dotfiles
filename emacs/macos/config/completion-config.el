@@ -26,17 +26,31 @@
         '(display-buffer-in-side-window
           (side . right)
           (window-width . 0.33)))
-
-  ;; ONLY consult-buffer in buffer mode - remove all others
   (setq vertico-multiform-commands
-        '((consult-buffer      buffer)
-          (my/consult-buffer-vertical buffer)))
-
+        '((consult-buffer   buffer)
+          (consult-line     buffer)
+          (consult-ripgrep  buffer)
+          (consult-grep     buffer)
+          (consult-outline  buffer)
+          (consult-imenu    buffer)
+          (consult-imenu-multi buffer)))
   (vertico-multiform-mode 1)
   (advice-add #'vertico-multiform--toggle :around
               (lambda (fn &rest args)
                 (unless (> (minibuffer-depth) 1)
-                  (apply fn args)))))
+                  (apply fn args))))
+  
+  ;; Clean up file path in minibuffer
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+
+(use-package vertico-directory
+  :after vertico
+  :ensure nil  ;; built into vertico package
+  :bind (:map vertico-map
+              ("RET"   . vertico-directory-enter)
+              ("DEL"   . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 ;; ============================================================
 ;; VERTICO KEYMAP
@@ -64,8 +78,10 @@
 (use-package orderless
   :ensure t
   :init
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil))
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides
+        '((file (styles basic partial-completion)))))
 
 ;; ============================================================
 ;; CONSULT
@@ -133,7 +149,24 @@
    consult--source-recent-file consult--source-project-recent-file
    :preview-key '(:debounce 0.4 any))
 
-  (setq consult-narrow-key "<"))
+  (setq consult-narrow-key "<")
+
+  ;; ------------------------------------------------------------
+  ;; "Unsaved" section in consult-buffer (C-x b)
+  ;; Surfaces file-visiting buffers with unsaved edits as their
+  ;; own group, above Buffer/File, instead of hidden behind a
+  ;; narrow key.
+  ;; ------------------------------------------------------------
+  (setf (plist-get consult--source-modified-buffer :hidden) nil)
+  (setf (plist-get consult--source-modified-buffer :name) "Unsaved")
+
+  (setq consult-buffer-sources
+        '(consult--source-modified-buffer
+          consult--source-buffer
+          consult--source-recent-file
+          consult--source-bookmark
+          consult--source-project-buffer
+          consult--source-project-recent-file)))
 
 ;; Prevents bookmark corruptions
 (setq bookmark-save-flag 1)
@@ -146,8 +179,8 @@
   :ensure t
   :hook (after-init . global-company-mode)
   :bind (:map company-active-map
-         ("TAB"       . company-complete-common-or-cycle)
-         ("<backtab>" . company-select-previous))
+              ("TAB"       . company-complete-common-or-cycle)
+              ("<backtab>" . company-select-previous))
   :config
   (setq company-idle-delay 0.2
         company-minimum-prefix-length 1
@@ -160,5 +193,18 @@
 
 (with-eval-after-load 'treemacs
   (define-key treemacs-mode-map [mouse-1] #'treemacs-single-click-expand-action))
+
+;; ============================================================
+;; yasnippet
+;; ============================================================
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-global-mode 1))
+
+;; Optional: snippet collection
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
 
 (provide 'completion)

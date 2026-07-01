@@ -1,0 +1,38 @@
+# Emacs temporary and backup files
+*~
+\#*\#
+.\#*
+
+# Emacs auto-save-list directory
+auto-save-list/
+
+# Compiled Emacs Lisp files
+*.elc
+
+# General macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two carriage returns
+Icon
+
+# Thumbnails
+._*
+
+# Files that may appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote filesystems
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+

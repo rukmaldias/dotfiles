@@ -92,18 +92,10 @@
 ;; ============================================================
 ;; TREEMACS ICONS
 ;; ============================================================
-(use-package all-the-icons
+(use-package treemacs-nerd-icons
+  :after (treemacs nerd-icons)
   :ensure t
-  :if (display-graphic-p))
-
-(use-package treemacs-all-the-icons
-  :after (treemacs all-the-icons)
-  :ensure t
-  :config (treemacs-load-theme "all-the-icons"))
-
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
+  :config (treemacs-load-theme "nerd-icons"))
 
 ;; ============================================================
 ;; TREEMACS SINGLE CLICK

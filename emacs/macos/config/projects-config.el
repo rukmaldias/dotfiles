@@ -22,6 +22,4 @@
   :after (treemacs projectile)
   :ensure t)
 
-
-
 (provide 'projects)

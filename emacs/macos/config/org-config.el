@@ -38,15 +38,27 @@
      "%latex -shell-escape -interaction nonstopmode -output-directory %o %f")))
 
 (with-eval-after-load 'org
+  ;; Keybindings
   (define-key org-mode-map (kbd "C-c C-v C-v") 'org-babel-execute-src-block)
   (define-key org-mode-map (kbd "C-c C-v C-b") 'org-babel-execute-buffer)
   (define-key org-mode-map (kbd "C-c C-x C-v") 'org-toggle-inline-images)
-  (add-to-list 'org-file-apps '("\\.png\\"  . "open %s"))
-  (add-to-list 'org-file-apps '("\\.jpg\\"  . "open %s"))
-  (add-to-list 'org-file-apps '("\\.svg\\"  . "open %s"))
-  (add-to-list 'org-file-apps '("\\.html\\'" . browse-url))
-  (add-to-list 'org-file-apps '("\\.pdf\\'"  . browse-url)))
+  (define-key org-mode-map (kbd "C-c C-x b") #'org-tree-to-indirect-buffer)
+  (define-key org-mode-map (kbd "C-c b") #'org-tree-to-indirect-buffer)
 
+  ;; Images - open in macOS Preview
+  (add-to-list 'org-file-apps '("\\.png\\'"  . "open %s"))
+  (add-to-list 'org-file-apps '("\\.jpg\\'"  . "open %s"))
+  (add-to-list 'org-file-apps '("\\.jpeg\\'" . "open %s"))
+  (add-to-list 'org-file-apps '("\\.svg\\'"  . "open %s"))
+  (add-to-list 'org-file-apps '("\\.gif\\'"  . "open %s"))
+
+  ;; PDF and HTML - open in browser
+  (add-to-list 'org-file-apps '("\\.pdf\\'"  . browse-url))
+  (add-to-list 'org-file-apps '("\\.html\\'" . browse-url)))
+
+;; ============================================================
+;; ORG BABEL PYTHON
+;; ============================================================
 (setq org-confirm-babel-evaluate nil)
 (setq org-babel-python-command
       "/Users/rukmaldias/.venvs/diagrams/bin/python3")
@@ -59,12 +71,16 @@
 (add-hook 'org-babel-after-execute-hook
           'my/org-babel-diagrams-display)
 
+;; ============================================================
+;; ORG ROAM FILE SERVER
+;; ============================================================
 (defun my/start-org-file-server ()
+  "Serve org-roam directory on port 8099."
   (unless (get-process "org-file-server")
     (start-process "org-file-server" nil
                    "python3" "-m" "http.server" "8099"
                    "--directory"
-                   "/Users/rukmaldias/Documents/Org/org-roam")))
+                   "/Users/rukmaldias/Scientists/Org/org-roam")))
 
 (add-hook 'org-roam-ui-mode-hook #'my/start-org-file-server)
 

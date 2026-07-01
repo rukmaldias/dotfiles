@@ -52,15 +52,16 @@
 ;; ============================================================
 ;; Icons
 ;; ============================================================
-(use-package all-the-icons
+(use-package nerd-icons
   :ensure t
-  :if (display-graphic-p)
   :config
-  (when (not (find-font (font-spec :name "all-the-icons")))
-    (all-the-icons-install-fonts t)))
+  (when (not (find-font (font-spec :name "Symbols Nerd Font Mono")))
+    (nerd-icons-install-fonts t)))
 
+;;Dired icons
 (use-package nerd-icons-dired
   :ensure t
+  :after nerd-icons
   :hook (dired-mode . nerd-icons-dired-mode))
 
 ;; ============================================================
@@ -75,6 +76,12 @@
 ;; ============================================================
 (savehist-mode 1)
 (recentf-mode 1)
+
+(setq recentf-exclude
+      '("\\.emacs\\.d/\\.cache/treemacs-persist\\'"
+        "\\.emacs\\.d/bookmarks\\'"
+        "/\\.git/.*\\'"
+        "\\.gz\\'"))
 
 ;; ============================================================
 ;; MINIBUFFER
