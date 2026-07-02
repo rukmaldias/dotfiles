@@ -42,8 +42,6 @@
   (define-key org-mode-map (kbd "C-c C-v C-v") 'org-babel-execute-src-block)
   (define-key org-mode-map (kbd "C-c C-v C-b") 'org-babel-execute-buffer)
   (define-key org-mode-map (kbd "C-c C-x C-v") 'org-toggle-inline-images)
-  (define-key org-mode-map (kbd "C-c C-x b") #'org-tree-to-indirect-buffer)
-  (define-key org-mode-map (kbd "C-c b") #'org-tree-to-indirect-buffer)
 
   ;; Images - open in macOS Preview
   (add-to-list 'org-file-apps '("\\.png\\'"  . "open %s"))
@@ -83,5 +81,103 @@
                    "/Users/rukmaldias/Scientists/Org/org-roam")))
 
 (add-hook 'org-roam-ui-mode-hook #'my/start-org-file-server)
+
+;; ============================================================
+;; AGENDA FILES
+;; ============================================================
+;; Every file listed here is scanned by org-agenda, dashboard's
+;; Agenda widget, and org-refile targets below.
+;; inbox.org / work.org / diary.org don't need to exist yet --
+;; org-capture will create them on first use.
+(setq org-agenda-files
+      '("~/Documents/Org/organizer/projects.org"
+        "~/Documents/Org/organizer/inbox.org"
+        "~/Documents/Org/organizer/work.org"
+	"~/Documents/Org/organizer/learning.org"))
+
+;; ============================================================
+;; TODO KEYWORDS (GTD workflow, per cachestocaches.com/Bernt Hansen)
+;; ============================================================
+;; NOTE: this supersedes the simpler org-todo-keywords that used
+;; to live in projects-config.el -- that line has been removed
+;; from there to avoid the two definitions fighting each other.
+;;
+;; TODO      - task/project not yet started
+;; NEXT      - the immediate next actionable step in a project
+;; WAITING   - blocked on someone else (prompts for a note via the @ flag)
+;; INACTIVE  - parked idea/project, revisit later
+;; MEETING   - heading used for meeting notes
+;; DONE      - complete
+;; CANCELLED - abandoned (prompts for a note via the @ flag)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@)" "INACTIVE(i)" "MEETING(m)"
+                  "|" "DONE(d)" "CANCELLED(c@)")))
+
+(setq org-todo-keyword-faces
+      '(("TODO"      . "#e06c75")
+        ("NEXT"      . "#61afef")
+        ("WAITING"   . "#e5c07b")
+        ("INACTIVE"  . "#5c6370")
+        ("MEETING"   . "#c678dd")
+        ("DONE"      . "#98c379")
+        ("CANCELLED" . "#5c6370")))
+
+;; ============================================================
+;; AGENDA VIEW
+;; ============================================================
+(setq org-agenda-span 'day
+      org-agenda-start-with-log-mode t
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t)
+
+;; ============================================================
+;; AUTOMATIC CLOCKING
+;; ============================================================
+;; C-c C-x C-i to clock in, C-c C-x C-o to clock out (built-in
+;; org bindings, no need to rebind). Capture templates below
+;; also auto clock-in/resume so switching tasks via capture
+;; doesn't lose time tracking on what you were doing.
+(setq org-clock-persist 'history)
+(org-clock-persistence-insinuate)
+(setq org-clock-in-resume t)
+(setq org-clock-into-drawer t)
+
+;; Column view: Task | Total clocked time | Last timestamp
+;; Activate with C-c C-x C-c on a top-level heading, q to exit.
+(setq org-columns-default-format
+      "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+
+;; ============================================================
+;; CAPTURE
+;; ============================================================
+;; C-c c to capture from anywhere (bound in keybindings-config.el
+;; or below if not already present).
+(setq org-default-notes-file "~/Documents/Org/organizer/inbox.org")
+
+(setq org-capture-templates
+      '(("t" "TODO" entry (file org-default-notes-file)
+         "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+        ("m" "Meeting" entry (file org-default-notes-file)
+         "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+        ("d" "Diary" entry (file+datetree "~/Documents/Org/organizer/diary.org")
+         "* %?\n%U\n" :clock-in t :clock-resume t)
+        ("i" "Idea" entry (file org-default-notes-file)
+         "* %? :IDEA:\n%t" :clock-in t :clock-resume t)
+        ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+         "** NEXT %?\nDEADLINE: %t")))
+
+(global-set-key (kbd "C-c c") #'org-capture)
+
+;; ============================================================
+;; REFILE
+;; ============================================================
+;; C-c C-w on any heading to move it -- completes against every
+;; heading (up to 9 levels deep) in the current buffer AND every
+;; file in org-agenda-files.
+(setq org-refile-targets
+      '((nil :maxlevel . 9)
+        (org-agenda-files :maxlevel . 9)))
+(setq org-refile-use-outline-path 'file
+      org-outline-path-complete-in-steps nil)
 
 (provide 'org-config)

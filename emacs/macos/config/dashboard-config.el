@@ -15,10 +15,10 @@
   (setq dashboard-set-file-icons t)
 
   ;; Sections: name, count, and single-key shortcut
-  (setq dashboard-items '((recents   . 5)
-			  (agenda    . 5)
-			  (projects  . 5)
-			  (bookmarks . 5)))
+  (setq dashboard-items '((agenda    . 7)
+			  (bookmarks . 5)
+			  (recents   . 5)
+			  (projects  . 5)))
 
   (setq dashboard-item-shortcuts '((recents   . "r")
 				   (agenda    . "a")
@@ -38,9 +38,11 @@
   (setq dashboard-projects-backend 'projectile)
 
   ;; Agenda: show top items, not a full week view
-  (setq dashboard-week-agenda nil)
+  (setq dashboard-week-agenda t)
   (setq dashboard-agenda-release-buffers t)
   (setq dashboard-agenda-sort-strategy '(time-up))
+  (setq dashboard-agenda-prefix-format
+	" %i %-12:c %(if (org-get-deadline-time (point)) \"⚑ \" \"▹ \")%-10s ")
 
   ;; Footer — mimic the "Doom loaded N packages..." line
   (setq dashboard-set-footer t)
@@ -53,6 +55,8 @@
 
   (with-eval-after-load 'dashboard
     (set-face-attribute 'dashboard-no-items-face nil
+			:underline nil)
+    (set-face-attribute 'dashboard-items-face nil
 			:underline nil))
 
   (setq dashboard-startupify-list '(dashboard-insert-banner
